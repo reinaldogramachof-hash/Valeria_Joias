@@ -10,7 +10,7 @@
   }
   *{box-sizing:border-box}
   html,body{height:100%}
-  body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial}
+  body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial}
   .wrap{max-width:1100px;margin:20px auto;padding:0 18px;display:grid;grid-template-columns:360px 1fr;gap:20px}
   header{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border:1px solid var(--line);border-radius:14px;background:#fff}
   .brand{display:flex;gap:14px;align-items:center}
@@ -21,30 +21,43 @@
   .panel{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px}
   .panel h2{font:600 16px/1.2 Georgia, "Times New Roman", Times, serif;margin:0 0 12px}
   .panel p{margin:8px 0}
-  .hint{font-size:13px;color:var(--soft)}
+  .hint{font-size:14px;color:var(--soft)}
   .cards{display:grid;grid-template-columns:1fr;gap:10px}
-  .card{position:relative;border:1px solid var(--line);border-radius:12px;padding:12px;background:#fff}
+  .card{position:relative;border:1px solid var(--line);border-radius:12px;padding:14px;background:#fff}
   .card:hover{border-color:#d8cfb7}
   .card input{position:absolute;inset:0;opacity:0;cursor:pointer}
   .card .title{font-weight:600;margin-bottom:6px}
-  .card .desc{color:var(--soft);font-size:14px}
+  .card .desc{color:var(--soft);font-size:15px}
   .selected{outline:2px solid var(--gold)}
   .grid{display:grid;gap:14px}
-  .list{display:grid;gap:8px}
-  label.option{display:flex;gap:10px;align-items:flex-start;padding:10px;border:1px dashed var(--line);border-radius:10px;background:#fff}
-  label.option input{margin-top:3px}
-  input[type=text], input[type=url], textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--pill)}
+  .list{display:grid;gap:10px}
+  label.option{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border:1px dashed var(--line);border-radius:12px;background:#fff}
+  label.option input{margin-top:3px;transform:scale(1.2)}
+  input[type=text], input[type=url], textarea{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--pill)}
   summary{cursor:pointer;color:#7c6a3b;font-weight:600}
   .footer{grid-column:1/-1;display:flex;gap:10px;justify-content:flex-end}
-  button{appearance:none;border:1px solid var(--line);background:#fff;color:var(--ink);padding:10px 14px;border-radius:12px;cursor:pointer}
+  button{appearance:none;border:1px solid var(--line);background:#fff;color:var(--ink);padding:12px 14px;border-radius:12px;cursor:pointer}
   button:hover{border-color:#d8cfb7}
   .btn-primary{background:linear-gradient(0deg, var(--gold2), var(--gold));border:none;color:#2b2413}
   .ok{color:var(--ok)}
-  progress{width:220px;height:10px;-webkit-appearance:none;appearance:none}
+  progress{width:260px;height:10px;-webkit-appearance:none;appearance:none}
   progress::-webkit-progress-bar{background:#eee; border-radius:999px}
   progress::-webkit-progress-value{background:var(--gold);border-radius:999px}
-  @media (max-width:980px){.wrap{grid-template-columns:1fr}.side{position:static}}
-  @media print{header,.footer{display:none}.wrap{grid-template-columns:1fr}}
+  /* MOBILE */
+  .mobile-bar{display:none}
+  @media (max-width:980px){
+    .wrap{grid-template-columns:1fr}
+    /* Ordem: primeiro os passos, depois o resumo */
+    main{order:1}
+    .side{position:static;order:2}
+    header{flex-direction:column;align-items:flex-start;gap:10px}
+    progress{width:100%}
+    .footer{display:none}
+    .mobile-bar{display:flex;position:sticky;bottom:0;left:0;right:0;gap:8px;background:rgba(249,247,242,.9);backdrop-filter:saturate(140%) blur(6px);padding:10px;border-top:1px solid var(--line)}
+    .mobile-bar button{flex:1}
+    button, label.option{border-radius:14px}
+  }
+  @media print{header,.footer,.mobile-bar{display:none}.wrap{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -57,7 +70,7 @@
           <div class="sub">Primeiro site • versão simples, clara e elegante</div>
         </div>
       </div>
-      <div>
+      <div style="width:100%">
         <div class="hint" style="text-align:right">Seu progresso</div>
         <progress id="progress" value="0" max="100" aria-label="Progresso"></progress>
       </div>
@@ -67,15 +80,15 @@
     <aside class="side">
       <div class="panel">
         <h2>Resumo do seu site</h2>
-        <div id="preview" class="hint" style="white-space:pre-wrap">Preencha os passos ao lado. O resumo aparece aqui de forma simples, como se já fosse a proposta.</div>
+        <div id="preview" class="hint" style="white-space:pre-wrap">Preencha os passos abaixo (no celular) ou ao lado (no computador). O resumo aparece aqui de forma simples, como se já fosse a proposta.</div>
         <hr style="border:none;border-top:1px solid var(--line);margin:12px 0" />
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <div class="desktop-actions" style="display:flex;gap:8px;flex-wrap:wrap">
           <button class="btn-primary" onclick="generatePreview()">Gerar resumo</button>
           <button onclick="copyResumo()">Copiar</button>
           <button onclick="downloadJSON()">Baixar JSON</button>
           <button onclick="window.print()">Salvar em PDF</button>
         </div>
-        <p class="hint">Dica: você pode parar e continuar depois. Suas escolhas ficam salvas neste computador.</p>
+        <p class="hint">Dica: você pode parar e continuar depois. Suas escolhas ficam salvas neste dispositivo.</p>
       </div>
     </aside>
 
@@ -108,7 +121,7 @@
       <section class="panel" data-step>
         <h2>Passo 2 — Como será a página inicial?</h2>
         <p class="hint">Marque o que deseja ver na primeira versão. Nada impede de mudar depois.</p>
-        <div class="list">
+        <div class="list" role="group" aria-label="Seções da Home">
           <label class="option"><input type="checkbox" data-list="home" value="Topo com foto bonita, frase e botão WhatsApp">Topo com foto bonita, frase e botão WhatsApp</label>
           <label class="option"><input type="checkbox" data-list="home" value="Mostruário com 6 peças destaque">Mostruário com 6 peças destaque</label>
           <label class="option"><input type="checkbox" data-list="home" value="Categorias: Anéis, Brincos, Colares, Pulseiras">Categorias: Anéis, Brincos, Colares, Pulseiras</label>
@@ -144,7 +157,9 @@
           </div>
           <div>
             <label class="hint">Top 10 peças para a primeira vitrine (pode colar nomes ou códigos)</label>
-            <textarea id="top10" rows="6" placeholder="Ex.: Anel Solitário Aro 17 – Ouro 18k\nBrinco Ponto de Luz – Prata 925\n..."></textarea>
+            <textarea id="top10" rows="6" placeholder="Ex.: Anel Solitário Aro 17 – Ouro 18k
+Brinco Ponto de Luz – Prata 925
+..."></textarea>
           </div>
         </div>
       </section>
@@ -199,6 +214,13 @@
     </main>
 
     <div class="footer">
+      <button onclick="resetForm()">Limpar</button>
+      <button onclick="saveLocal()">Salvar</button>
+      <button class="btn-primary" onclick="generatePreview()">Gerar resumo</button>
+    </div>
+
+    <!-- Barra de ações móvel -->
+    <div class="mobile-bar">
       <button onclick="resetForm()">Limpar</button>
       <button onclick="saveLocal()">Salvar</button>
       <button class="btn-primary" onclick="generatePreview()">Gerar resumo</button>
@@ -261,21 +283,40 @@
     if(state.zap) qs('#zap').value=state.zap; if(state.mail) qs('#mail').value=state.mail; if(state.insta) qs('#insta').value=state.insta; if(state.addr) qs('#addr').value=state.addr;
     if(state.obs) qs('#obs').value=state.obs; updateProgress();
   }
-  function cssEscape(s){return (s||'').replace(/"/g,'\\"');}
+  function cssEscape(s){return (s||'').replace(/"/g,'\"');}
 
   function generatePreview(){
     const objetivoLabel={onepage:'Site simples de apresentação',catalogo:'Catálogo com pedidos por WhatsApp',loja:'Vender pelo site (etapa futura)'}[state.objetivo]||'—';
     const produtosLabel={"catalogo-zap":"Catálogo com botão de WhatsApp","destaques":"Peças em destaque","loja-depois":"Loja depois (com carrinho)"}[state.produtos]||'—';
 
-    const resumo = `VALÉRIA JÓIAS — ESBOÇO INICIAL\n\nO que vamos construir agora: ${objetivoLabel}\n\nPágina inicial com: ${fmt(state.home)}\n\nProdutos no site: ${produtosLabel}\nTop 10 peças iniciais:\n${(state.top10||'—')}\n\nCores/estilo: ${fmt([...state.cores, ...(state.corExtra? [state.corExtra]:[])])} • ${fmt(state.estilo)}\n\nContatos: WhatsApp ${state.zap||'—'} • E-mail ${state.mail||'—'} • Instagram ${state.insta||'—'} • Endereço ${state.addr||'—'}\n\nObservações: ${(state.obs||'—')}\n\nPróximos passos:\n1) Montar um rascunho visual (wire) com as seções escolhidas.\n2) Colocar as 6 peças destaque e revisar textos.\n3) Publicar a primeira versão e ajustar com base no que os clientes perguntarem.`;
+    const resumo = `VALÉRIA JÓIAS — ESBOÇO INICIAL
+
+O que vamos construir agora: ${objetivoLabel}
+
+Página inicial com: ${fmt(state.home)}
+
+Produtos no site: ${produtosLabel}
+Top 10 peças iniciais:
+${(state.top10||'—')}
+
+Cores/estilo: ${fmt([...state.cores, ...(state.corExtra? [state.corExtra]:[])])} • ${fmt(state.estilo)}
+
+Contatos: WhatsApp ${state.zap||'—'} • E-mail ${state.mail||'—'} • Instagram ${state.insta||'—'} • Endereço ${state.addr||'—'}
+
+Observações: ${(state.obs||'—')}
+
+Próximos passos:
+1) Montar um rascunho visual (wire) com as seções escolhidas.
+2) Colocar as 6 peças destaque e revisar textos.
+3) Publicar a primeira versão e ajustar com base no que os clientes perguntarem.`;
     qs('#preview').textContent=resumo;
   }
   function fmt(a){return (a&&a.length)? a.join(', '):'—'}
   function copyResumo(){ if(!qs('#preview').textContent.trim()) generatePreview(); navigator.clipboard.writeText(qs('#preview').textContent); toast('Resumo copiado'); }
   function downloadJSON(){ const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='briefing-valeria-clean.json'; a.click(); }
   function resetForm(){ if(!confirm('Limpar tudo?')) return; localStorage.removeItem('briefingValeriaClean'); location.reload(); }
-  function saveLocal(){ persist(); toast('Salvo neste computador'); }
-  function toast(msg){ const t=document.createElement('div'); t.textContent=msg; t.style.cssText='position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#fff;border:1px solid var(--line);padding:10px 14px;border-radius:10px;box-shadow:0 8px 16px rgba(0,0,0,.08);z-index:9999'; document.body.appendChild(t); setTimeout(()=>t.remove(),1600); }
+  function saveLocal(){ persist(); toast('Salvo neste dispositivo'); }
+  function toast(msg){ const t=document.createElement('div'); t.textContent=msg; t.style.cssText='position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#fff;border:1px solid var(--line);padding:10px 14px;border-radius:12px;box-shadow:0 8px 16px rgba(0,0,0,.08);z-index:9999'; document.body.appendChild(t); setTimeout(()=>t.remove(),1600); }
 
   restore();
 </script>
