@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Briefing Interativo – Valéria Jóias (versão clean)</title>
+<style>
+  :root{
+    --paper:#f9f7f2; --ink:#222; --soft:#6c6c6c; --gold:#c6a667; --gold2:#e3d1a2; --line:#e8e3d8; --pill:#fff; --ok:#2f8f46;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial}
+  .wrap{max-width:1100px;margin:20px auto;padding:0 18px;display:grid;grid-template-columns:360px 1fr;gap:20px}
+  header{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border:1px solid var(--line);border-radius:14px;background:#fff}
+  .brand{display:flex;gap:14px;align-items:center}
+  .logo{width:44px;height:44px;border-radius:10px;background:conic-gradient(from 180deg at 50% 50%, #f7e8bd, #c8aa6a, #9a7c3a, #f7e8bd);border:1px solid #d8c89a;box-shadow:inset 0 1px 0 rgba(255,255,255,.5)}
+  .brand h1{font:600 18px/1.2 Georgia, "Times New Roman", Times, serif;margin:0}
+  .brand .sub{font-size:12px;color:var(--soft)}
+  .side{position:sticky;top:16px;align-self:start}
+  .panel{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px}
+  .panel h2{font:600 16px/1.2 Georgia, "Times New Roman", Times, serif;margin:0 0 12px}
+  .panel p{margin:8px 0}
+  .hint{font-size:13px;color:var(--soft)}
+  .cards{display:grid;grid-template-columns:1fr;gap:10px}
+  .card{position:relative;border:1px solid var(--line);border-radius:12px;padding:12px;background:#fff}
+  .card:hover{border-color:#d8cfb7}
+  .card input{position:absolute;inset:0;opacity:0;cursor:pointer}
+  .card .title{font-weight:600;margin-bottom:6px}
+  .card .desc{color:var(--soft);font-size:14px}
+  .selected{outline:2px solid var(--gold)}
+  .grid{display:grid;gap:14px}
+  .list{display:grid;gap:8px}
+  label.option{display:flex;gap:10px;align-items:flex-start;padding:10px;border:1px dashed var(--line);border-radius:10px;background:#fff}
+  label.option input{margin-top:3px}
+  input[type=text], input[type=url], textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--pill)}
+  summary{cursor:pointer;color:#7c6a3b;font-weight:600}
+  .footer{grid-column:1/-1;display:flex;gap:10px;justify-content:flex-end}
+  button{appearance:none;border:1px solid var(--line);background:#fff;color:var(--ink);padding:10px 14px;border-radius:12px;cursor:pointer}
+  button:hover{border-color:#d8cfb7}
+  .btn-primary{background:linear-gradient(0deg, var(--gold2), var(--gold));border:none;color:#2b2413}
+  .ok{color:var(--ok)}
+  progress{width:220px;height:10px;-webkit-appearance:none;appearance:none}
+  progress::-webkit-progress-bar{background:#eee; border-radius:999px}
+  progress::-webkit-progress-value{background:var(--gold);border-radius:999px}
+  @media (max-width:980px){.wrap{grid-template-columns:1fr}.side{position:static}}
+  @media print{header,.footer{display:none}.wrap{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+  <div class="wrap" id="app">
+    <header>
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1>Briefing Interativo – Valéria Jóias</h1>
+          <div class="sub">Primeiro site • versão simples, clara e elegante</div>
+        </div>
+      </div>
+      <div>
+        <div class="hint" style="text-align:right">Seu progresso</div>
+        <progress id="progress" value="0" max="100" aria-label="Progresso"></progress>
+      </div>
+    </header>
+
+    <!-- Resumo -->
+    <aside class="side">
+      <div class="panel">
+        <h2>Resumo do seu site</h2>
+        <div id="preview" class="hint" style="white-space:pre-wrap">Preencha os passos ao lado. O resumo aparece aqui de forma simples, como se já fosse a proposta.</div>
+        <hr style="border:none;border-top:1px solid var(--line);margin:12px 0" />
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn-primary" onclick="generatePreview()">Gerar resumo</button>
+          <button onclick="copyResumo()">Copiar</button>
+          <button onclick="downloadJSON()">Baixar JSON</button>
+          <button onclick="window.print()">Salvar em PDF</button>
+        </div>
+        <p class="hint">Dica: você pode parar e continuar depois. Suas escolhas ficam salvas neste computador.</p>
+      </div>
+    </aside>
+
+    <!-- Conteúdo principal -->
+    <main class="grid">
+      <!-- Passo 1 -->
+      <section class="panel" data-step>
+        <h2>Passo 1 — O que você quer agora?</h2>
+        <p class="hint">Escolha apenas uma opção. Pense no que resolve sua vida <b>nos próximos 30 dias</b>.</p>
+        <div class="cards">
+          <div class="card" data-bind="objetivo" data-value="onepage">
+            <input type="radio" name="objetivo"/>
+            <div class="title">Quero um site simples para me apresentar</div>
+            <div class="desc">Uma página bonita com foto, frase curta e botão de WhatsApp. Ideal para começar.</div>
+          </div>
+          <div class="card" data-bind="objetivo" data-value="catalogo">
+            <input type="radio" name="objetivo"/>
+            <div class="title">Quero mostrar produtos e receber pedidos no WhatsApp</div>
+            <div class="desc">Lista por categorias, página do produto e botão “Quero este”. Você conversa e finaliza direto no WhatsApp.</div>
+          </div>
+          <div class="card" data-bind="objetivo" data-value="loja">
+            <input type="radio" name="objetivo"/>
+            <div class="title">Quero vender pelo site (mais pra frente)</div>
+            <div class="desc">Carrinho e pagamento vêm depois. Agora focamos em aparecer bem e gerar conversas.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Passo 2 -->
+      <section class="panel" data-step>
+        <h2>Passo 2 — Como será a página inicial?</h2>
+        <p class="hint">Marque o que deseja ver na primeira versão. Nada impede de mudar depois.</p>
+        <div class="list">
+          <label class="option"><input type="checkbox" data-list="home" value="Topo com foto bonita, frase e botão WhatsApp">Topo com foto bonita, frase e botão WhatsApp</label>
+          <label class="option"><input type="checkbox" data-list="home" value="Mostruário com 6 peças destaque">Mostruário com 6 peças destaque</label>
+          <label class="option"><input type="checkbox" data-list="home" value="Categorias: Anéis, Brincos, Colares, Pulseiras">Categorias: Anéis, Brincos, Colares, Pulseiras</label>
+          <label class="option"><input type="checkbox" data-list="home" value="Depoimentos de clientes (2 a 3)">Depoimentos de clientes (2 a 3)</label>
+          <label class="option"><input type="checkbox" data-list="home" value="Sobre a Valéria (1 foto + 1 parágrafo)">Sobre a Valéria (1 foto + 1 parágrafo)</label>
+          <label class="option"><input type="checkbox" data-list="home" value="Contato e mapa">Contato e mapa</label>
+        </div>
+        <details style="margin-top:8px"><summary>Como isso fica no site?</summary><p class="hint">Ordem simples: Foto bonita → Categorias → Peças em destaque → Depoimentos → Sobre → Contato.</p></details>
+      </section>
+
+      <!-- Passo 3 -->
+      <section class="panel" data-step>
+        <h2>Passo 3 — Produtos no site</h2>
+        <p class="hint">Linguagem direta: catálogo = lista de produtos. Checkout = pagamento no site.</p>
+        <div class="list">
+          <label class="option"><input name="produtos" type="radio" value="catalogo-zap">Catálogo simples com botão de WhatsApp</label>
+          <label class="option"><input name="produtos" type="radio" value="destaques">Por enquanto, só algumas peças em destaque</label>
+          <label class="option"><input name="produtos" type="radio" value="loja-depois">Depois a gente ativa a loja com carrinho</label>
+        </div>
+      </section>
+
+      <!-- Passo 4 -->
+      <section class="panel" data-step>
+        <h2>Passo 4 — Fotos e conteúdo</h2>
+        <div class="grid" style="grid-template-columns:1fr 1fr">
+          <div>
+            <p class="hint">Fotos não precisam ser perfeitas. Luz natural ajuda muito.</p>
+            <div class="list">
+              <label class="option"><input name="fotos" type="radio" value="boas">Já tenho boas fotos</label>
+              <label class="option"><input name="fotos" type="radio" value="algumas">Tenho algumas; preciso de orientação</label>
+              <label class="option"><input name="fotos" type="radio" value="sessao">Preciso de sessão de fotos</label>
+            </div>
+          </div>
+          <div>
+            <label class="hint">Top 10 peças para a primeira vitrine (pode colar nomes ou códigos)</label>
+            <textarea id="top10" rows="6" placeholder="Ex.: Anel Solitário Aro 17 – Ouro 18k\nBrinco Ponto de Luz – Prata 925\n..."></textarea>
+          </div>
+        </div>
+      </section>
+
+      <!-- Passo 5 -->
+      <section class="panel" data-step>
+        <h2>Passo 5 — Cores e estilo</h2>
+        <p class="hint">Escolha um clima. Joias combinam com dourado, branco e preto — mas vale o seu gosto.</p>
+        <div class="list">
+          <label class="option"><input type="checkbox" data-list="cores" value="Dourado + Branco">Dourado + Branco</label>
+          <label class="option"><input type="checkbox" data-list="cores" value="Preto + Dourado">Preto + Dourado</label>
+          <label class="option"><input type="checkbox" data-list="cores" value="Nude + Dourado">Nude + Dourado</label>
+          <label class="option"><input type="checkbox" data-list="cores" value="Outro">Outro (me conte abaixo)</label>
+        </div>
+        <input type="text" id="corExtra" placeholder="Se quiser, descreva outra cor (ex.: Rosé)">
+        <div class="list" style="margin-top:10px">
+          <label class="option"><input type="checkbox" data-list="estilo" value="Minimalista">Minimalista</label>
+          <label class="option"><input type="checkbox" data-list="estilo" value="Clássico">Clássico</label>
+          <label class="option"><input type="checkbox" data-list="estilo" value="Luxo">Luxo</label>
+        </div>
+      </section>
+
+      <!-- Passo 6 -->
+      <section class="panel" data-step>
+        <h2>Passo 6 — Seus contatos (para colocar no site)</h2>
+        <div class="grid" style="grid-template-columns:1fr 1fr">
+          <div>
+            <label class="hint">WhatsApp (com DDD)</label>
+            <input type="text" id="zap" placeholder="(11) 9 0000-0000" />
+          </div>
+          <div>
+            <label class="hint">E-mail</label>
+            <input type="text" id="mail" placeholder="contato@valeriajoi​as.com.br" />
+          </div>
+          <div>
+            <label class="hint">Instagram</label>
+            <input type="text" id="insta" placeholder="@valeriajoi​as" />
+          </div>
+          <div>
+            <label class="hint">Endereço (se tiver loja física)</label>
+            <input type="text" id="addr" placeholder="Rua…, nº…, Bairro – Cidade/UF" />
+          </div>
+        </div>
+      </section>
+
+      <!-- Passo 7 -->
+      <section class="panel" data-step>
+        <h2>Passo 7 — Observações</h2>
+        <textarea id="obs" rows="4" placeholder="Pode colar links de referência, frases que você gosta, dúvidas…"></textarea>
+      </section>
+
+    </main>
+
+    <div class="footer">
+      <button onclick="resetForm()">Limpar</button>
+      <button onclick="saveLocal()">Salvar</button>
+      <button class="btn-primary" onclick="generatePreview()">Gerar resumo</button>
+    </div>
+  </div>
+
+<script>
+  const state = { objetivo:null, home:[], produtos:null, fotos:null, top10:"", cores:[], corExtra:"", estilo:[], zap:"", mail:"", insta:"", addr:"", obs:"" };
+  const qs=(s,p=document)=>p.querySelector(s); const qsa=(s,p=document)=>[...p.querySelectorAll(s)];
+
+  // Cards simples
+  qsa('.card[data-bind]').forEach(card=>{
+    card.addEventListener('click',()=>{
+      qsa(`.card[data-bind="${card.dataset.bind}"]`).forEach(c=>c.classList.remove('selected'));
+      card.classList.add('selected'); state[card.dataset.bind]=card.dataset.value; persist(); updateProgress();
+    });
+  });
+  // Checkboxes em listas
+  qsa('input[type="checkbox"][data-list]').forEach(ch=>{
+    ch.addEventListener('change',()=>{
+      const k=ch.dataset.list; const set=new Set(state[k]||[]);
+      ch.checked? set.add(ch.value) : set.delete(ch.value);
+      state[k]=[...set]; persist(); updateProgress();
+    });
+  });
+  // Radios
+  qsa('input[name="produtos"]').forEach(r=>r.addEventListener('change',()=>{state.produtos=r.value; persist(); updateProgress();}));
+  qsa('input[name="fotos"]').forEach(r=>r.addEventListener('change',()=>{state.fotos=r.value; persist(); updateProgress();}));
+  // Inputs livres
+  qs('#top10').addEventListener('input',e=>{state.top10=e.target.value; persist()});
+  qs('#corExtra').addEventListener('input',e=>{state.corExtra=e.target.value; persist()});
+  qs('#zap').addEventListener('input',e=>{state.zap=e.target.value; persist()});
+  qs('#mail').addEventListener('input',e=>{state.mail=e.target.value; persist()});
+  qs('#insta').addEventListener('input',e=>{state.insta=e.target.value; persist()});
+  qs('#addr').addEventListener('input',e=>{state.addr=e.target.value; persist()});
+  qs('#obs').addEventListener('input',e=>{state.obs=e.target.value; persist()});
+
+  function updateProgress(){
+    let filled=0, total=7; // passos
+    if(state.objetivo) filled++;
+    if((state.home||[]).length) filled++;
+    if(state.produtos) filled++;
+    if(state.fotos || state.top10.trim()) filled++;
+    if((state.cores||[]).length || (state.estilo||[]).length || state.corExtra.trim()) filled++;
+    if(state.zap || state.mail || state.insta || state.addr) filled++;
+    if(state.obs.trim()) filled++;
+    qs('#progress').value=Math.round((filled/total)*100);
+  }
+  function persist(){ localStorage.setItem('briefingValeriaClean', JSON.stringify(state)); }
+  function restore(){
+    const s=localStorage.getItem('briefingValeriaClean'); if(!s) return; Object.assign(state, JSON.parse(s));
+    if(state.objetivo){ const el=qs(`.card[data-bind="objetivo"][data-value="${state.objetivo}"]`); el&&el.classList.add('selected'); }
+    (state.home||[]).forEach(v=>{ const el=qs(`input[type=checkbox][data-list=home][value="${cssEscape(v)}"]`); el&&(el.checked=true); });
+    if(state.produtos){ const el=qs(`input[name=produtos][value="${cssEscape(state.produtos)}"]`); el&&(el.checked=true); }
+    if(state.fotos){ const el=qs(`input[name=fotos][value="${cssEscape(state.fotos)}"]`); el&&(el.checked=true); }
+    if(state.top10) qs('#top10').value=state.top10;
+    (state.cores||[]).forEach(v=>{ const el=qs(`input[type=checkbox][data-list=cores][value="${cssEscape(v)}"]`); el&&(el.checked=true); });
+    if(state.corExtra) qs('#corExtra').value=state.corExtra;
+    (state.estilo||[]).forEach(v=>{ const el=qs(`input[type=checkbox][data-list=estilo][value="${cssEscape(v)}"]`); el&&(el.checked=true); });
+    if(state.zap) qs('#zap').value=state.zap; if(state.mail) qs('#mail').value=state.mail; if(state.insta) qs('#insta').value=state.insta; if(state.addr) qs('#addr').value=state.addr;
+    if(state.obs) qs('#obs').value=state.obs; updateProgress();
+  }
+  function cssEscape(s){return (s||'').replace(/"/g,'\\"');}
+
+  function generatePreview(){
+    const objetivoLabel={onepage:'Site simples de apresentação',catalogo:'Catálogo com pedidos por WhatsApp',loja:'Vender pelo site (etapa futura)'}[state.objetivo]||'—';
+    const produtosLabel={"catalogo-zap":"Catálogo com botão de WhatsApp","destaques":"Peças em destaque","loja-depois":"Loja depois (com carrinho)"}[state.produtos]||'—';
+
+    const resumo = `VALÉRIA JÓIAS — ESBOÇO INICIAL\n\nO que vamos construir agora: ${objetivoLabel}\n\nPágina inicial com: ${fmt(state.home)}\n\nProdutos no site: ${produtosLabel}\nTop 10 peças iniciais:\n${(state.top10||'—')}\n\nCores/estilo: ${fmt([...state.cores, ...(state.corExtra? [state.corExtra]:[])])} • ${fmt(state.estilo)}\n\nContatos: WhatsApp ${state.zap||'—'} • E-mail ${state.mail||'—'} • Instagram ${state.insta||'—'} • Endereço ${state.addr||'—'}\n\nObservações: ${(state.obs||'—')}\n\nPróximos passos:\n1) Montar um rascunho visual (wire) com as seções escolhidas.\n2) Colocar as 6 peças destaque e revisar textos.\n3) Publicar a primeira versão e ajustar com base no que os clientes perguntarem.`;
+    qs('#preview').textContent=resumo;
+  }
+  function fmt(a){return (a&&a.length)? a.join(', '):'—'}
+  function copyResumo(){ if(!qs('#preview').textContent.trim()) generatePreview(); navigator.clipboard.writeText(qs('#preview').textContent); toast('Resumo copiado'); }
+  function downloadJSON(){ const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='briefing-valeria-clean.json'; a.click(); }
+  function resetForm(){ if(!confirm('Limpar tudo?')) return; localStorage.removeItem('briefingValeriaClean'); location.reload(); }
+  function saveLocal(){ persist(); toast('Salvo neste computador'); }
+  function toast(msg){ const t=document.createElement('div'); t.textContent=msg; t.style.cssText='position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#fff;border:1px solid var(--line);padding:10px 14px;border-radius:10px;box-shadow:0 8px 16px rgba(0,0,0,.08);z-index:9999'; document.body.appendChild(t); setTimeout(()=>t.remove(),1600); }
+
+  restore();
+</script>
+</body>
+</html>
